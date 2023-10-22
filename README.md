@@ -323,41 +323,185 @@ class Solution:
 
 
 
-# Fourth Question
+# Fourth Question - Minimum Changes to Make K Semi-palindromes
 
 <details>
     <summary>Python Code</summary>
 
-    class Solution:
-    def maxSum(self, n: list[int], k: int) -> int:
-        mod = 10**9 + 7
-        binaryArr = [0] * 31
-        for x in n:
-            for i in range(31):
-                if x & (1 << i):
-                    binaryArr[i] += 1
-        r = 0
-        while sum(binaryArr) and k:
-            c = 0
-            k -= 1
-            for i in range(31):
-                if binaryArr[i]:
-                    binaryArr[i] -= 1
-                    c += 1 << i
-            r += c * c
-            r %= mod
-        return r
+        class Solution:
+            def minimumChanges(self, st: str, k: int) -> int:
+                def num(st):
+                    n = len(st)
+                    ans = float('inf')
+                    for it in fac[len(st)]:
+                        nu = n // it
+                        cur = 0
+                        for i in range(nu // 2):
+                            i2 = nu - i - 1
+                            for j in range(it):
+                                if st[i * it + j] != st[i2 * it + j]:
+                                    cur += 1
+                        ans = min(ans, cur)
+                    return ans
+        
+                n = len(st)
+                for i in range(2, n + 1):
+                    fac[i] = []
+                    for j in range(1, i):
+                        if i % j == 0:
+                            fac[i].append(j)
+        
+                dp = [[float('inf')] * (k + 1) for _ in range(n + 1)]
+                dp[0][0] = 0
+        
+                for i in range(n):
+                    for j in range(i + 1):
+                        cur = st[j:i + 1]
+                        add = num(cur)
+                        for l in range(k):
+                            dp[i + 1][l + 1] = min(dp[i + 1][l + 1], dp[j][l] + add)
+        
+                return dp[n][k]
+              
+        # Initialize the fac array.
+        fac = [[] for _ in range(210)]
 
+
+  
 </details>
 
 
 <details>
   <summary>C++</summary>
 
+            class Solution {
+                  public:
+                      int dp[210][110];  // A 2D array to store dynamic programming values.
+                      vector<int> fac[210];  // A vector of vectors to store factors of string lengths.
+                  
+                      // Function to calculate the number of changes needed to make a string palindrome.
+                      int num(string st) {
+                          int n = st.length();
+                          int ans = 1e9;  // Initialize ans with a large value.
+                  
+                          // Iterate through all factors of the string length.
+                          for (auto it : fac[st.length()]) {
+                              int nu = n / it;
+                              int cur = 0;
+                  
+                              // Compare characters in the string to make it a palindrome.
+                              for (int i = 0; i < nu / 2; i++) {
+                                  int i2 = nu - i - 1;
+                                  for (int j = 0; j < it; j++)
+                                      if (st[i * it + j] != st[i2 * it + j])
+                                          cur++;
+                              }
+                  
+                              ans = min(ans, cur);  // Update ans with the minimum changes needed.
+                          }
+                          return ans;
+                      }
+                  
+                      // Main function to calculate the minimum changes needed.
+                      int minimumChanges(string st, int k) {
+                          int n = st.length();
+                  
+                          // Precompute factors for string lengths.
+                          for (int i = 2; i <= n; i++)
+                              for (int j = 1; j < i; j++)
+                                  if (i % j == 0)
+                                      fac[i].push_back(j);
+                  
+                          // Initialize the dp array with a large value.
+                          for (int i = 0; i <= n; i++)
+                              for (int j = 0; j <= k; j++)
+                                  dp[i][j] = 1e9;
+                  
+                          dp[0][0] = 0;  // Base case: no changes needed for an empty string.
+                  
+                          // Dynamic programming to find the minimum changes needed.
+                          for (int i = 0; i < n; i++)
+                              for (int j = 0; j <= i; j++) {
+                                  string cur = st.substr(j, i - j + 1);
+                                  int add = num(cur);  // Calculate changes needed for the current substring.
+                  
+                                  // Update dp values for different values of k.
+                                  for (int l = 0; l < k; l++)
+                                      dp[i + 1][l + 1] = min(dp[i + 1][l + 1], dp[j][l] + add);
+                              }
+                  
+                          return dp[n][k];  // Return the minimum changes needed for the entire string.
+                      }
+                  };
+
+          
 </details>
 
 
 <details>
   <summary>JAVA</summary>
+
+
+          public class Solution {
+              int[][] dp = new int[210][110];
+              List<Integer>[] fac = new List[210];
+          
+              public int num(String st) {
+                  int n = st.length();
+                  int ans = 1e9;
+          
+                  for (int it : fac[st.length()]) {
+                      int nu = n / it;
+                      int cur = 0;
+          
+                      for (int i = 0; i < nu / 2; i++) {
+                          int i2 = nu - i - 1;
+                          for (int j = 0; j < it; j++) {
+                              if (st.charAt(i * it + j) != st.charAt(i2 * it + j)) {
+                                  cur++;
+                              }
+                          }
+                      }
+          
+                      ans = Math.min(ans, cur);
+                  }
+                  return ans;
+              }
+          
+              public int minimumChanges(String st, int k) {
+                  int n = st.length();
+          
+                  for (int i = 2; i <= n; i++) {
+                      fac[i] = new ArrayList<>();
+                      for (int j = 1; j < i; j++) {
+                          if (i % j == 0) {
+                              fac[i].add(j);
+                          }
+                      }
+                  }
+          
+                  for (int i = 0; i <= n; i++) {
+                      for (int j = 0; j <= k; j++) {
+                          dp[i][j] = 1e9;
+                      }
+                  }
+          
+                  dp[0][0] = 0;
+          
+                  for (int i = 0; i < n; i++) {
+                      for (int j = 0; j <= i; j++) {
+                          String cur = st.substring(j, i - j + 1);
+                          int add = num(cur);
+          
+                          for (int l = 0; l < k; l++) {
+                              dp[i + 1][l + 1] = Math.min(dp[i + 1][l + 1], dp[j][l] + add);
+                          }
+                      }
+                  }
+          
+                  return dp[n][k];
+              }
+          }
+
 
 </details>
