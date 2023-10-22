@@ -4,34 +4,18 @@
 <details>
 
   <summary>Python CODE</summary>
-METHOD ONE 
+	BRUTE FORCE
 
-```
-class Solution:
-    def differenceOfSums(self, n: int, m: int) -> int:
-        intList = [i for i in range(1, n+1)]
-        divisible = notDivisible = 0
-        for num in intList:
-            if num%m == 0:
-                divisible += num
-            else:
-                notDivisible += num
-        return notDivisible - divisible
-```
-METHOD 2
-
-```
-
-class Solution:
-    def differenceOfSums(self, n: int, m: int) -> int:
-        totalSum = n*(n+1)//2
-        loop = n//m
-        mSum = 0
-        while loop:
-            totalSum -= loop*m
-            mSum += loop*m
-            loop-= 1
-        return totalSum - mSum
+```python
+	class Solution:
+		def minimumSum(self, nums):
+			sum = float('inf')
+			for i in range(len(nums) - 2):
+				for j in range(i + 1, len(nums) - 1):
+					for k in range(j + 1, len(nums)):
+						if nums[i] < nums[j] and nums[j] > nums[k]:
+							sum = min(sum, nums[i] + nums[j] + nums[k])
+			return -1 if sum == float('inf') else sum
 ```
 
 </details>
@@ -39,19 +23,22 @@ class Solution:
 <details>
   <summary>C++</summary>
   
-  ```
-      class Solution {
-        public:
-            int differenceOfSums(int n, int m) {
-                int s1=0,s2=0;
-                for(int i=1;i<=n;i++)
-                {
-                    if(i%m==0) s2+=i;
-                    else s1+=i;
-                }
-                return s1-s2;
-            }
-    };
+  ```cpp
+    class Solution {
+		public:
+			int minimumSum(vector<int>& nums) {
+				int sum = INT_MAX;
+				for (int i = 0; i < nums.size() - 2; i++) {
+					for (int j = i + 1; j < nums.size() - 1; j++) {
+						for (int k = j + 1; k < nums.size(); k++) {
+							if (nums[i] < nums[j] && nums[j] > nums[k])
+								sum = min(sum, nums[i] + nums[j] + nums[k]);
+						}
+					}
+				}
+				return sum==INT_MAX?-1:sum;
+			}
+		};
   ```
 
 </details>
@@ -60,18 +47,22 @@ class Solution:
 <details>
   <summary>JAVA</summary>
   
-  ```
-    public class Solution {
-        public int differenceOfSums(int n, int m) {
-            int s1=0,s2=0;
-            for(int i=1;i<=n;i++)
-            {
-                if(i%m==0) s2+=i;
-                else s1+=i;
-            }
-            return s1-s2;
-        }
-    }
+  ```java
+	class Solution {
+		public int minimumSum(int[] nums) {
+			int sum = Integer.MAX_VALUE;
+			for (int i = 0; i < nums.length - 2; i++) {
+				for (int j = i + 1; j < nums.length - 1; j++) {
+					for (int k = j + 1; k < nums.length; k++) {
+						if (nums[i] < nums[j] && nums[j] > nums[k]) {
+							sum = Math.min(sum, nums[i] + nums[j] + nums[k]);
+						}
+					}
+				}
+			}
+			return (sum == Integer.MAX_VALUE) ? -1 : sum;
+		}
+	}
   ```
 </details>
 
@@ -208,117 +199,157 @@ class Solution:
 
 <details>
     <summary>Python Code</summary>
-  
-      class Solution:
 
-        def minOperations(self, s1: str, s2: str, x: int) -> int:
-            n = len(s1)
-            v = []
-            for i in range(n):
-                if s1[i] != s2[i]:
-                    v.append(i)
-            m = len(v)
-            if m % 2 != 0:
-                return -1
-            dp = [[-1 for _ in range(m)] for _ in range(m)]
-            ans = self.solve(0, m - 1, m, v, x, dp)
-            return ans
-    
-        def solve(self, i, j, n, v, x, dp):
-            if i >= n or j < 0 or i > j:
-                return 0
-            if dp[i][j] != -1:
-                return dp[i][j]
-            a = v[i + 1] - v[i] + self.solve(i + 2, j, n, v, x, dp)
-            b = v[j] - v[j - 1] + self.solve(i, j - 2, n, v, x, dp)
-            c = x + self.solve(i + 1, j - 1, n, v, x, dp)
-            dp[i][j] = min(a, b, c)
-            return dp[i][j]
+```py
+	class Solution:
+		def possibleGroupSize(self, m, i):
+			for key, value in m.items():
+				no_groups_i_sized = value // i
+				mem_not_in_groups = value % i
+				if mem_not_in_groups < i - 1:
+					req = (i - 1) - mem_not_in_groups
+					if no_groups_i_sized >= req:
+						mem_not_in_groups = i - 1
+				if mem_not_in_groups > 0 and mem_not_in_groups < i - 1:
+					return False
+			return True
+
+		def minGroupsForValidAssignment(self, nums):
+			m = defaultdict(int)
+			for num in nums:
+				m[num] += 1
+			min_freq = float('inf')
+			for freq in m.values():
+				min_freq = min(freq, min_freq)
+			for i in range(min_freq + 1, 0, -1):
+				if self.possibleGroupSize(m, i):
+					no_of_groups = 0
+					for val in m.values():
+						mem_not_in_groups = val % i
+						no_of_groups += val // i
+						if mem_not_in_groups > 0:
+							no_of_groups += 1
+					return no_of_groups
+			return -1
+```
 </details>
 
 
 <details>
-  <summary>C++</summary>
+  	<summary>C++</summary>
   
-  ```
-  
-    class Solution
-    {
-      public:
-          int dp[501][501];
-  
-          int solve(int i, int j, int n, vector<int> &v, int x)
-          {
-              if (i >= n || j < 0 || i > j)
-                  return 0;
-              if (dp[i][j] != -1)
-                  return dp[i][j];
-              int a = v[i + 1] - v[i] + solve(i + 2, j, n, v, x);
-              int b = v[j] - v[j - 1] + solve(i, j - 2, n, v, x);
-              int c = x + solve(i + 1, j - 1, n, v, x);
-              return dp[i][j] = min({a, b, c});
-          }
-  
-          int minOperations(string s1, string s2, int x)
-          {
-              int n = s1.size();
-              vector<int> v;
-              for (int i = 0; i < n; i++)
-              {
-                  if (s1[i] != s2[i])
-                      v.push_back(i);
-              }
-              memset(dp, -1, sizeof(dp));
-              int m = v.size();
-              if (m % 2 != 0)
-                  return -1;
-              int ans = solve(0, m - 1, m, v, x);
-              return ans;
-          }
-    };
-    
-  ```
-
-</details>
-
-
-<details>
-  <summary>JAVA</summary>
-  
-  ```
-      class Solution {
-        public int minOperations(String s1, String s2, int x) {
-            int n = s1.length();
-            List<Integer> v = new ArrayList<>();
-            for (int i = 0; i < n; i++) {
-                if (s1.charAt(i) != s2.charAt(i)) {
-                    v.add(i);
+```cpp
+    class Solution {
+        bool possibleGroupSize(unordered_map<int, int> &m, int i) {
+            for (auto elem : m) {
+                int no_groups_i_sized = elem.second / i,
+                mem_not_in_groups = elem.second % i;
+                if (mem_not_in_groups < i - 1) {
+                    /* 
+                    * if the members remaining are not i-1 sized
+                    * they can't be a group. So assign the req 
+                    * members for making it a i - 1 sized from 
+                    * i sized groups to the remaining members
+                    */
+                    int req = (i - 1) - mem_not_in_groups;
+                    if (no_groups_i_sized >= req)
+                        mem_not_in_groups = i - 1;
+                    // Total groups will be previous i sized groups
+                    // plus new group that can be formed by borrowing
+                }
+                // after distributing the groups
+                if (mem_not_in_groups > 0 && mem_not_in_groups < i - 1) {
+                    return false;
                 }
             }
-            int m = v.size();
-            if (m % 2 != 0) {
-                return -1;
-            }
-            int[][] dp = new int[m][m];
-            int ans = solve(0, m - 1, m, v, x, dp);
-            return ans;
+            // we reach here iff we have arranged groups according to constraints
+            // so return true
+            return true;
         }
+    public:
+        int minGroupsForValidAssignment(vector<int>& nums) {
+            unordered_map<int, int> m;
+            for (int i = 0; i < nums.size(); i++) {
+                m[nums[i]]++;
+            }
+            int min_freq = INT_MAX;
+            for (auto a : m) {
+                min_freq = min(a.second, min_freq);
+            }
+            for (int i = min_freq + 1; i > 0; i--) {
+                if (possibleGroupSize(m, i)) {
+                    // if groups with given size is possible
+                    // count the no. of groups
+                    int no_of_groups = 0;
+                    for (auto k : m) {
+                        int mem_not_in_groups = k.second % i;
+                        no_of_groups += k.second / i;
+                        // if there are any remaining members
+                        // we know that the group formation 
+                        // is possible so add the extra group
+                        if (mem_not_in_groups > 0)
+                            no_of_groups++;
+                    }
+                    // if group size is more no. of groups will
+                    // be less
+                    return no_of_groups;
+                }
+            }
+            return -1;
+        }
+    };
+```
+</details>
+
+
+<details>
+	<summary>JAVA</summary>
   
-        private int solve(int i, int j, int n, List<Integer> v, int x, int[][] dp) {
-            if (i >= n || j < 0 || i > j) {
-                return 0;
+```java
+    class Solution {
+        boolean possibleGroupSize(HashMap<Integer, Integer> m, int i) {
+            for (HashMap.Entry<Integer, Integer> entry : m.entrySet()) {
+                int no_groups_i_sized = entry.getValue() / i;
+                int mem_not_in_groups = entry.getValue() % i;
+                if (mem_not_in_groups < i - 1) {
+                    int req = (i - 1) - mem_not_in_groups;
+                    if (no_groups_i_sized >= req) {
+                        mem_not_in_groups = i - 1;
+                    }
+                }
+                if (mem_not_in_groups > 0 && mem_not_in_groups < i - 1) {
+                    return false;
+                }
             }
-            if (dp[i][j] != 0) {
-                return dp[i][j];
+            return true;
+        }
+
+        public int minGroupsForValidAssignment(int[] nums) {
+            HashMap<Integer, Integer> m = new HashMap<>();
+            for (int num : nums) {
+                m.put(num, m.getOrDefault(num, 0) + 1);
             }
-            int a = v.get(i + 1) - v.get(i) + solve(i + 2, j, n, v, x, dp);
-            int b = v.get(j) - v.get(j - 1) + solve(i, j - 2, n, v, x, dp);
-            int c = x + solve(i + 1, j - 1, n, v, x, dp);
-            dp[i][j] = Math.min(a, Math.min(b, c));
-            return dp[i][j];
+            int min_freq = Integer.MAX_VALUE;
+            for (int freq : m.values()) {
+                min_freq = Math.min(freq, min_freq);
+            }
+            for (int i = min_freq + 1; i > 0; i--) {
+                if (possibleGroupSize(m, i)) {
+                    int no_of_groups = 0;
+                    for (int val : m.values()) {
+                        int mem_not_in_groups = val % i;
+                        no_of_groups += val / i;
+                        if (mem_not_in_groups > 0) {
+                            no_of_groups++;
+                        }
+                    }
+                    return no_of_groups;
+                }
+            }
+            return -1;
         }
     }
-  ```
+```
 </details>
 
 
